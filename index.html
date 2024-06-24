@@ -31,7 +31,7 @@
             if (zipCode) {
                 console.log("Zip code from URL:", zipCode);
                 const apiKey = 'c18680e0adbbc2b296883ad1ed33d35a';
-                const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zipCode},us&appid=${apiKey}`;
+                const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zipCode},us&appid=${apiKey}&units=imperial`;
                 console.log("Fetching weather data from URL:", url);
 
                 fetch(url)
@@ -45,11 +45,25 @@
                     .then(data => {
                         console.log("Weather data received:", data);
                         if (data.cod === 200) {
-                            const temp = data.main.temp - 273.15; // Convert from Kelvin to Celsius
+                            const tempFahrenheit = data.main.temp; // Temperature is already in Fahrenheit
                             const weather = data.weather[0].main;
-                            const responseMessage = `Weather: ${weather}, Temp: ${temp.toFixed(2)}°C`;
+                            let responseMessage = `Weather: ${weather}, Temp: ${tempFahrenheit.toFixed(2)}°F`;
+
+                            // Add comments based on temperature and weather
+                            if (tempFahrenheit > 75 && (weather === 'Clear' || weather === 'Clouds')) {
+                                responseMessage += "<br>Yes, it's great weather for a convertible!";
+                            } else if (tempFahrenheit > 60 && tempFahrenheit <= 75 && (weather === 'Clear' || weather === 'Clouds')) {
+                                responseMessage += "<br>Yes, but you might want a light jacket.";
+                            } else if (tempFahrenheit > 50 && tempFahrenheit <= 60) {
+                                responseMessage += "<br>Yes, with the windows up.";
+                            } else if (tempFahrenheit <= 50) {
+                                responseMessage += "<br>Probably not, it's too cold.";
+                            } else {
+                                responseMessage += "<br>Not really convertible weather.";
+                            }
+
                             console.log("Response message:", responseMessage);
-                            document.getElementById('response').textContent = responseMessage;
+                            document.getElementById('response').innerHTML = responseMessage;
                         } else {
                             console.log("Invalid zip code response:", data);
                             document.getElementById('response').textContent = 'Invalid zip code. Please try again.';
