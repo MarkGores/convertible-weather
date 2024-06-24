@@ -56,6 +56,7 @@
                         if (data.cod === 200) {
                             const tempFahrenheit = data.main.temp; // Temperature is already in Fahrenheit
                             const weather = data.weather[0].main.toLowerCase();
+                            const windSpeed = data.wind.speed; // Add wind speed for more detailed conditions
                             const responses = await fetchResponses();
 
                             console.log("Responses data fetched:", responses);
@@ -65,8 +66,16 @@
                                 key = "too_hot";
                             } else if (tempFahrenheit <= 50) {
                                 key = "too_cold";
+                            } else if (weather === "clear" && tempFahrenheit > 50 && tempFahrenheit <= 75 && windSpeed < 10) {
+                                key = "just_right";
+                            } else if (weather === "rain") {
+                                key = "rain";
+                            } else if (weather.includes("thunderstorm") || weather.includes("storm")) {
+                                key = "thunderstorm";
+                            } else if (windSpeed >= 10) {
+                                key = "wind";
                             } else {
-                                key = "too_cold"; // defaulting to too_cold for this example
+                                key = "just_right"; // Defaulting to just_right if no specific condition matches
                             }
 
                             console.log("Key for response:", key);
@@ -76,7 +85,7 @@
 
                             console.log("Selected response message:", responseMessage);
 
-                            document.getElementById('response').innerHTML = responseMessage;
+                            document.getElementById('response').innerHTML = `${responseMessage}<br>Weather: ${weather}, Temp: ${tempFahrenheit.toFixed(2)}°F, Wind: ${windSpeed} mph`;
                         } else {
                             console.log("Invalid zip code response:", data);
                             document.getElementById('response').textContent = 'Invalid zip code. Please try again.';
